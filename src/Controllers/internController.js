@@ -102,26 +102,36 @@ const getInternCollegeDetails = async function(req,res){
     if(!isValid(college)){
             return res.status(400).send({status: false, msg: ' BAD request  college not found'})
     }
-            const collegeId= college[0]._id
-            const internName =await internModel.find({collegeId:collegeId, isDeleted:false})
+           const collegeId= college[0]._id
 
-            const interns=[];
-            for(let i=0;i<internName.length;i++){
-              let object ={}
-              object._id =internName[i]._id
-              objectName=internName[i].name
-              object.email= internName[i].email
-              object.mobile= internName[i].mobile
-              interns.push(object)
-            }
+      //       const internName =await internModel.find({collegeId:collegeId, isDeleted:false})
 
-            const ObjectData ={name:college[0].name,
-            fullName:college[0].fullName,
-          logoLink:college[0].logoLink,
-        interns:interns
-      }
+      //       const interns=[];
+      //       for(let i=0;i<internName.length;i++){
+      //         let object ={}
+      //         object._id =internName[i]._id
+      //         object.name=internName[i].name
+      //         object.email= internName[i].email
+      //         object.mobile= internName[i].mobile
+      //         interns.push(object)
+      //       }
 
-      return res.status(201).send({status:true,count: interns.length,msg:ObjectData})
+      //       const ObjectData ={name:college[0].name,
+      //       fullName:college[0].fullName,
+      //     logoLink:college[0].logoLink,
+      //   interns:interns
+      // }
+
+      let interns = await internModel.find({ collegeId: collegeId }).select({ name: 1, email: 1, mobile: 1, _id: 1 });
+    let result = await collegeModel.find({ name: collegeName }).select({ name: 1, fullName: 1, logoLink: 1, _id: 0 });
+
+    const object = {
+      name: result[0].name,
+      fullName: result[0].fullName,
+      logoLink: result[0].logoLink,
+      intrests: interns,
+    };
+      return res.status(201).send({status:true,count: interns.length,data:object})
 
 
   } catch(error){
