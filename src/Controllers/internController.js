@@ -78,37 +78,35 @@ const isValid = function(value){
 
 
 
+const getInternCollegeDetails = async function (req, res) {
+  try {
+    const collegeName =req.query.collegeName
+      if (!isValid(req.query.collegeName)) {
+       return   res.status(400).send({ status: false, message: 'collegeName is not a valid  name' })
+          
+      }
+      let collegeDetail = await collegeModel.findOne({ name: collegeName, isDeleted: false })
+      console.log(collegeDetail);
+      if (!collegeDetail) {
+     return     res.status(400).send({ status: false, msg: "No college found " })
+          
+      }
 
+      let { _id, name, fullName, logoLink } = collegeDetail
 
+      let allInterns = await internModel.find({ collegeId: _id, isDeleted: false }).select({ name: 1, email: 1, mobile: 1,_id:1 })
+      console.log(allInterns)
+      if (allInterns.length === 0) return res.status(400).send({ status: false, msg: "no intern applied for this college" })
 
-
-const getInternCollegeDetails = async function(req,res){
-  try{
-    const collegeName= req.query.collegeName
-    if(!isValid(collegeName)) { return res.status(400).send({status:false,msg:"BAD REQUEST please provide valid college"})}
-
-    const college =await collegeModel.find({name:collegeName, isDeleted:false})
-    if(!isValid(college)){
-            return res.status(400).send({status: false, msg: ' BAD request  college not found'})
-    }
-           const collegeId= college[0]._id
-
-     let interns = await internModel.find({ collegeId: collegeId }).select({ name: 1, email: 1, mobile: 1, _id: 1 });
-    let result = await collegeModel.find({ name: collegeName }).select({ name: 1, fullName: 1, logoLink: 1, _id: 0 });
-
-    const object = {
-      name: result[0].name,
-      fullName: result[0].fullName,
-      logoLink: result[0].logoLink,
-      intrests: interns,
-    };
-      return res.status(201).send({status:true,count: interns.length,data:object})
-
-
-  } catch(error){
-    res.status(500).send({status:false,msg:error.message})
+      let College = { name, fullName, logoLink, intrests: allInterns }
+      return res.status(201).send({status:true,count:allInterns.length,  data:College})
   }
-}
+  catch (err) {
+      res.status(500).send({ status: false, msg: err.message })
+  }
+
+};
+
 
 
   module.exports.createIntern=createIntern;
