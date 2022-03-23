@@ -17,40 +17,31 @@ const isValid = function(value){
     try {
         let data = req.body;
         const {name, email, mobile, collegeName} = data
-        if(!isValidRequestBody(data)){
-            return res.status(400).send({status: false, msg:'BAD request plz provide valid data'})
+        if(!isValidRequestBody(data)){ return res.status(400).send({status: false, msg:'BAD request plz provide valid data'})
         }
-        if(!isValid(name)){
-            return res.status(400).send({status: false, msg: ' BAD request plz provide valid name'})
+        if(!isValid(name)){ return res.status(400).send({status: false, msg: ' BAD request plz provide valid name'})
         }
       
-        if(!isValid(collegeName)){
-          return res.status(400).send({status: false, msg: ' BAD request plz provide valid collegeName '})
-      }
       const college = await collegeModel.find({ fullName : collegeName})
-      if(!isValid(college)){
-          return res.status(400).send({status: false, msg: ' BAD request  college not found'})
+      if(!isValid(college)){   return res.status(400).send({status: false, msg: ' BAD request  college not found'})
       }
 
         
+      if(!isValid(collegeName)){ return res.status(400).send({status: false, msg: ' BAD request plz provide valid collegeName '})
+    }
 
              ///email validation start
-            if(!isValid(mobile)){
-            return res.status(400).send({status: false, msg: 'BAD request plz provide valid mobile'})
+            if(!isValid(mobile)){  return res.status(400).send({status: false, msg: 'BAD request plz provide valid mobile'})
         }
           
-        if(!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
-          res.status(400).send({status:false, message:'email should be a valid email address'})
+        if(!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {  res.status(400).send({status:false, message:'email should be a valid email address'})
           return
         } 
         
         
         const isEmailAlreadyUsed= await  internModel.findOne({email});
 
-        if(isEmailAlreadyUsed){
-        res.status(400).send({status:false, message:`${email} email is already registered`})
-        return
-          }
+        if(isEmailAlreadyUsed){ return res.status(400).send({status:false, message:`${email} email is already registered`}) }
             ///email validation end
 
 
@@ -58,9 +49,7 @@ const isValid = function(value){
         /// validation mobile
         const isMobileAlreadyUsed= await  internModel.findOne({mobile});
 
-        if(isMobileAlreadyUsed){
-        res.status(400).send({status:false, message:`${mobile} mobile is already registered`})
-        return
+        if(isMobileAlreadyUsed){ return res.status(400).send({status:false, message:`${mobile} mobile is already registered`})
         }
 
         
@@ -104,25 +93,7 @@ const getInternCollegeDetails = async function(req,res){
     }
            const collegeId= college[0]._id
 
-      //       const internName =await internModel.find({collegeId:collegeId, isDeleted:false})
-
-      //       const interns=[];
-      //       for(let i=0;i<internName.length;i++){
-      //         let object ={}
-      //         object._id =internName[i]._id
-      //         object.name=internName[i].name
-      //         object.email= internName[i].email
-      //         object.mobile= internName[i].mobile
-      //         interns.push(object)
-      //       }
-
-      //       const ObjectData ={name:college[0].name,
-      //       fullName:college[0].fullName,
-      //     logoLink:college[0].logoLink,
-      //   interns:interns
-      // }
-
-      let interns = await internModel.find({ collegeId: collegeId }).select({ name: 1, email: 1, mobile: 1, _id: 1 });
+     let interns = await internModel.find({ collegeId: collegeId }).select({ name: 1, email: 1, mobile: 1, _id: 1 });
     let result = await collegeModel.find({ name: collegeName }).select({ name: 1, fullName: 1, logoLink: 1, _id: 0 });
 
     const object = {
