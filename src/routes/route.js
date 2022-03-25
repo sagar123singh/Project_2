@@ -10,11 +10,11 @@ router.get("/test-me", function (req, res) {
     res.send("My first ever api!")
 })
 
-router.post("/functionUp/colleges",collegeController.createCollege)
+router.post("/functionup/colleges",collegeController.createCollege)
 
-router.post("/functionUp/interns",internController.createIntern)
+router.post("/functionup/interns",internController.createIntern)
 
-router.get("/functionUp/collegeDetails",internController.getInternCollegeDetails)
+router.get("/functionup/collegeDetails",internController.getInternCollegeDetails)
 
 
 

@@ -1,3 +1,4 @@
+
 const internModel= require('../Models/internModel')
 const collegeModel = require("../Models/collegeModel");
 
@@ -15,24 +16,19 @@ const isValid = function(value){
 
   const createIntern = async function (req, res) {
     try {
+      res.setHeader('Access-Control-Allow-Origin','*')
         let data = req.body;
-        const {name, email, mobile, collegeName} = data
+        const {name, email, mobile, collegeName} = data   /// destructuring method
         if(!isValidRequestBody(data)){ return res.status(400).send({status: false, msg:'BAD request plz provide valid data'})
         }
         if(!isValid(name)){ return res.status(400).send({status: false, msg: ' BAD request plz provide valid name'})
         }
       
-      const college = await collegeModel.find({ fullName : collegeName})
-      if(!isValid(college)){   return res.status(400).send({status: false, msg: ' BAD request  college not found'})
-      }
 
-        
-      if(!isValid(collegeName)){ return res.status(400).send({status: false, msg: ' BAD request plz provide valid collegeName '})
-    }
+   
 
              ///email validation start
-            if(!isValid(mobile)){  return res.status(400).send({status: false, msg: 'BAD request plz provide valid mobile'})
-        }
+     
           
         if(!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {  res.status(400).send({status:false, message:'email should be a valid email address'})
           return
@@ -47,6 +43,11 @@ const isValid = function(value){
 
 
         /// validation mobile
+
+        if(!isValid(mobile)){  return res.status(400).send({status: false, msg: 'BAD request plz provide valid mobile'})
+      }
+
+
         const isMobileAlreadyUsed= await  internModel.findOne({mobile});
 
         if(isMobileAlreadyUsed){ return res.status(400).send({status:false, message:`${mobile} mobile is already registered`})
@@ -65,8 +66,19 @@ const isValid = function(value){
         }
           ///mobile validation end
 
+                      
+      if(!isValid(collegeName)){ return res.status(400).send({status: false, msg: ' BAD request plz provide valid collegeName '})
+    }
+
+      const college = await collegeModel.find({ fullName : collegeName , isDeleted:false })
+
+      if(!college || college.length <=0){
+      return res.status(404).send({status: false, msg: ' BAD request  college not found'})
+      }
+
+   
             req.body.collegeId=college[0]._id
-            delete req.body["collegeName"]
+             delete req.body["collegeName"]
 
          let internCreated = await internModel.create(data)
         res.status(201).send({status: true, output: internCreated})
@@ -80,6 +92,7 @@ const isValid = function(value){
 
 const getInternCollegeDetails = async function (req, res) {
   try {
+    res.setHeader('Access-Control-Allow-Origin','*')
     const collegeName =req.query.collegeName
       if (!isValid(req.query.collegeName)) {
        return   res.status(400).send({ status: false, message: 'collegeName is not a valid  name' })
@@ -99,14 +112,13 @@ const getInternCollegeDetails = async function (req, res) {
       if (allInterns.length === 0) return res.status(400).send({ status: false, msg: "no intern applied for this college" })
 
       let College = { name, fullName, logoLink, intrests: allInterns }
-      return res.status(201).send({status:true,count:allInterns.length,  data:College})
+      return res.status(200).send({status:true,count:allInterns.length,  data:College})
   }
   catch (err) {
       res.status(500).send({ status: false, msg: err.message })
   }
 
 };
-
 
 
   module.exports.createIntern=createIntern;
